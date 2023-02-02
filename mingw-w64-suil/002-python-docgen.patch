@@ -1,0 +1,12 @@
+diff -bur suil-0.10.18-orig/doc/c/api/meson.build suil-0.10.18/doc/c/api/meson.build
+--- suil-0.10.18-orig/doc/c/api/meson.build	2023-02-02 01:44:19.781361400 -0700
++++ suil-0.10.18/doc/c/api/meson.build	2023-02-02 01:44:23.536688400 -0700
+@@ -3,7 +3,7 @@
+ 
+ c_suil_rst = custom_target(
+   'suil.rst',
+-  command: [dox_to_sphinx, '-f', '@INPUT0@', '@OUTDIR@'],
++  command: ['python', dox_to_sphinx, '-f', '@INPUT0@', '@OUTDIR@'],
+   input: [c_index_xml] + c_rst_files,
+   output: 'suil.rst',
+ )
