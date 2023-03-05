@@ -6,10 +6,11 @@
 
 _realname=kicad
 _wx_basever=3.2
+_withlibs=no
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 pkgver=7.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Software for the creation of electronic schematic diagrams and printed circuit board artwork (mingw-w64)"
 arch=(any)
 mingw_arch=('mingw64' 'ucrt64' 'clang64')
@@ -31,10 +32,10 @@ depends=(
   "${MINGW_PACKAGE_PREFIX}-openssl"
   "${MINGW_PACKAGE_PREFIX}-freeglut"
   "${MINGW_PACKAGE_PREFIX}-zlib"
-  $([[ ${MINGW_PACKAGE_PREFIX} == *-clang-aarch64* ]] || echo "${MINGW_PACKAGE_PREFIX}-opencascade")
+  "${MINGW_PACKAGE_PREFIX}-opencascade"
   "${MINGW_PACKAGE_PREFIX}-cairo"
-  "${MINGW_PACKAGE_PREFIX}-kicad-footprints"
-  "${MINGW_PACKAGE_PREFIX}-kicad-symbols"
+  $([[ "${_withlibs}" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-kicad-footprints")
+  $([[ "${_withlibs}" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-kicad-symbols")
 )
 makedepends=(
   "${MINGW_PACKAGE_PREFIX}-cc"
