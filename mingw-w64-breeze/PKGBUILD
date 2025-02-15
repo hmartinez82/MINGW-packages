@@ -37,16 +37,30 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-7zip"
              "${MINGW_PACKAGE_PREFIX}-python"
              "${MINGW_PACKAGE_PREFIX}-qt6-tools")
 groups=("${MINGW_PACKAGE_PREFIX}-plasma")
-source=("https://download.kde.org/stable/plasma/${pkgver}/${_realname}-${pkgver}.tar.xz"{,.sig})
+source=("https://download.kde.org/stable/plasma/${pkgver}/${_realname}-${pkgver}.tar.xz"{,.sig}
+        001-colors-and-cursors.patch)
 noextract=("${_realname}-${pkgver}.tar.xz")
 sha256sums=('7bb50dd662e35dfdaeec958fad4214e6c3c14484919ab12a545a1109fbe08995'
-            'SKIP')
+            'SKIP'
+            'ac0693503e90aa23d08e85fc2be133ce1069f088a38ad4d9f5de6c2027514d01')
 validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D') # Jonathan Esk-Riddell <jr@jriddell.org>
+
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying ${_patch}"
+    patch -Nbp1 -i "${srcdir}/${_patch}"
+  done
+}
 
 prepare() {
   7z x -bso0 -bsp0 "${_realname}-${pkgver}.tar.xz"
   7z x -bso0 -bsp0 -ttar "${_realname}-${pkgver}.tar"
   python "$(dirname ${BASH_SOURCE[0]})"/../mingw-w64-PKGBUILD-common/replace-symlinks.py "${_realname}-${pkgver}"
+
+  cd "${srcdir}/${_realname}-${pkgver}"
+    apply_patch_with_msg \
+    001-colors-and-cursors.patch
 }
 
 build() {

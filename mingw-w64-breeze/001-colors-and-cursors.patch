@@ -1,0 +1,47 @@
+diff -bur breeze-6.3.0-orig/CMakeLists.txt breeze-6.3.0/CMakeLists.txt
+--- breeze-6.3.0-orig/CMakeLists.txt	2025-02-14 21:27:43 +0000
++++ breeze-6.3.0/CMakeLists.txt	2025-02-14 21:27:46 +0000
+@@ -103,6 +103,17 @@
+     build_Qt5()
+ endif()
+ 
++
++function(build_colors_and_cursors)
++    # While it is technically not 100% correct to use versionless
++    # KDEInstallDirs while (maybe) building for both Qt versions,
++    # it doesn't really matter at the end, because colors and cursors
++    # only use ICONDIR and DATADIR which both do not depend on the version
++    include(KDEInstallDirs)
++    add_subdirectory(colors)
++    add_subdirectory(cursors)
++endfunction()
++
+ function(build_Qt6)
+     set(QT_MAJOR_VERSION 6)
+     include(KDEInstallDirs6)
+@@ -194,23 +205,13 @@
+     )
+ 
+     unset(QUERY_EXECUTABLE CACHE)
++
++    build_colors_and_cursors()    
+ endfunction()
+ if(BUILD_QT6)
+     build_Qt6()
+ endif()
+ 
+-function(build_colors_and_cursors)
+-    # While it is technically not 100% correct to use versionless
+-    # KDEInstallDirs while (maybe) building for both Qt versions,
+-    # it doesn't really matter at the end, because colors and cursors
+-    # only use ICONDIR and DATADIR which both do not depend on the version
+-    include(KDEInstallDirs)
+-    add_subdirectory(colors)
+-    add_subdirectory(cursors)
+-endfunction()
+-
+-build_colors_and_cursors()
+-
+ # add clang-format target for all our real source files
+ file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.h)
+ kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
