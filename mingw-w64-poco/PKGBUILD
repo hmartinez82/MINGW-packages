@@ -3,7 +3,7 @@
 _realname=poco
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-pkgver=1.13.0
+pkgver=1.14.1
 pkgrel=1
 pkgdesc="POrtable COmponents C++ Libraries (mingw-w64)"
 arch=('any')
@@ -32,8 +32,8 @@ depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
 source=(https://pocoproject.org/releases/${_realname}-${pkgver}/${_realname}-${pkgver}-all.tar.bz2
         001-fix-build-on-mingw.patch
         011-cmake-mingw.patch)
-sha256sums=('93d3a810064c25f1e8b24452602e42bc528474258458f388f9de2f787d5170ab'
-            'daf531ab8ed72a86a02ddfcb916e113155b7a872b65116907f4d3be6e4997afe'
+sha256sums=('bee1a36b94666781a9d1cab6fbdc979742cdb635f27dbf0715561ca85622255d'
+            'd7abc049a156d18916d3ab5820d0a5276c433ea7a8c9d930310e63a5508b611c'
             '8b4c1abc1fc635229333632a36c3f7850f2de70b9ba91db06d7c9aebcecc5ef1')
 
 _apply_patch_with_msg() {
