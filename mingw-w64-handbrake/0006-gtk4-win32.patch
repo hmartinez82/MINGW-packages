@@ -1,0 +1,159 @@
+diff -bur HandBrake-1.9.2-orig/gtk/module.rules HandBrake-1.9.2/gtk/module.rules
+--- HandBrake-1.9.2-orig/gtk/module.rules	2025-03-15 15:46:21 -0600
++++ HandBrake-1.9.2/gtk/module.rules	2025-03-15 15:46:39 -0600
+@@ -10,28 +10,28 @@
+ gtk.configure: $(GTK.SETUP.stamp)
+ 
+ $(GTK.SETUP.stamp): | $(LIBHB.a) $(BUILD/)GNUmakefile
+-	$(GTK.CONFIGURE.env) $(MESON.exe) setup \
++	$(GTK.CONFIGURE.env) meson setup \
+ 		$(call fn.ABSOLUTE,$(GTK.build/)) $(call fn.ABSOLUTE,$(GTK.src/)) $(GTK.CONFIGURE.extra) $(GTK.CONFIGURE.cross)
+ 
+ $(GTK.CONFIGURE.stamp): $(BUILD/)GNUmakefile | $(GTK.SETUP.stamp)
+-	$(MESON.exe) configure $(call fn.ABSOLUTE,$(GTK.build/)) $(GTK.CONFIGURE.extra)
++	meson configure $(call fn.ABSOLUTE,$(GTK.build/)) $(GTK.CONFIGURE.extra)
+ 	$(TOUCH.exe) $(call fn.ABSOLUTE,$(GTK.CONFIGURE.stamp))
+ 
+ gtk.reconfigure: | $(GTK.SETUP.stamp)
+-	$(MESON.exe) setup --reconfigure \
++	meson setup --reconfigure \
+ 		$(call fn.ABSOLUTE,$(GTK.build/)) $(call fn.ABSOLUTE,$(GTK.src/)) $(GTK.CONFIGURE.extra)
+ 
+ gtk.build: | $(GTK.SETUP.stamp) $(GTK.CONFIGURE.stamp)
+ 	+$(NINJA.exe) -C $(GTK.build/) $(GTK.BUILD.extra)
+ 
+ gtk.test:
+-	$(MESON.exe) test -C $(GTK.build/) $(GTK.BUILD.extra)
++	meson test -C $(GTK.build/) $(GTK.BUILD.extra)
+ 
+ gtk.install-strip:
+-	$(MESON.exe) install -C $(GTK.build/) --strip
++	meson install -C $(GTK.build/) --strip
+ 
+ gtk.install:
+-	$(MESON.exe) install -C $(GTK.build/)
++	meson install -C $(GTK.build/)
+ 
+ gtk.uninstall:
+ 	$(NINJA.exe) uninstall -C $(GTK.build/)
+diff -bur HandBrake-1.9.2-orig/gtk/meson.build HandBrake-1.9.2/gtk/meson.build
+--- HandBrake-1.9.2-orig/gtk/meson.build	2025-03-15 15:51:07 -0600
++++ HandBrake-1.9.2/gtk/meson.build	2025-03-15 15:51:16 -0600
+@@ -20,7 +20,7 @@
+   hb_dir = meson.current_build_dir() / '..'
+ endif
+ 
+-hb_incdirs = include_directories(hb_dir / 'libhb', hb_dir / 'contrib/include')
++hb_incdirs = include_directories(hb_dir / 'libhb')
+ 
+ # External dependencies (required)
+ ghb_deps = [
+diff -bur HandBrake-1.9.2-orig/gtk/src/ghb-string-list.c HandBrake-1.9.2/gtk/src/ghb-string-list.c
+--- HandBrake-1.9.2-orig/gtk/src/ghb-string-list.c	2025-03-15 15:52:16 -0600
++++ HandBrake-1.9.2/gtk/src/ghb-string-list.c	2025-03-15 15:59:29 -0600
+@@ -39,7 +39,7 @@
+ static GParamSpec *props[N_PROPS] = { NULL };
+ 
+ static void string_list_add_action(GSimpleAction *action, GVariant *param, gpointer self);
+-static void string_list_remove_action(GSimpleAction *action, GVariant *param, gpointer self);
++G_MODULE_EXPORT void string_list_remove_action(GSimpleAction *action, GVariant *param, gpointer self);
+ 
+ static GActionEntry action_entries[] = {
+     {"add", string_list_add_action, NULL, NULL, NULL},
+diff -bur HandBrake-1.9.2-orig/gtk/src/presets.h HandBrake-1.9.2/gtk/src/presets.h
+--- HandBrake-1.9.2-orig/gtk/src/presets.h	2025-03-15 15:52:16 -0600
++++ HandBrake-1.9.2/gtk/src/presets.h	2025-03-15 16:02:18 -0600
+@@ -26,7 +26,7 @@
+ 
+ G_BEGIN_DECLS
+ 
+-void ghb_presets_bind_tree_model(signal_user_data_t *ud);
++G_MODULE_EXPORT void ghb_presets_bind_tree_model(signal_user_data_t *ud);
+ void ghb_presets_load(signal_user_data_t *ud);
+ void ghb_update_from_preset(signal_user_data_t *ud, const gchar *key);
+ void ghb_settings_init(GhbValue *settings, const char *name);
+@@ -62,17 +62,17 @@
+ void ghb_preset_menu_button_refresh(signal_user_data_t *ud,
+                                     const char *name, int type);
+ 
+-void presets_list_selection_changed_cb(
++G_MODULE_EXPORT void presets_list_selection_changed_cb(
+     GtkTreeSelection *selection, signal_user_data_t *ud);
+ 
+-gboolean presets_drag_accept_cb(GtkDropTarget *drop_target, GdkDrop *drop,
++G_MODULE_EXPORT gboolean presets_drag_accept_cb(GtkDropTarget *drop_target, GdkDrop *drop,
+                                 signal_user_data_t *ud);
+-GdkDragAction presets_drag_motion_cb(GtkDropTargetAsync *drop_target, GdkDrop *drop,
++G_MODULE_EXPORT GdkDragAction presets_drag_motion_cb(GtkDropTargetAsync *drop_target, GdkDrop *drop,
+                                      double x, double y, signal_user_data_t *ud);
+-gboolean presets_drop_cb(GtkDropTargetAsync *drop_target, GdkDrop *drop,
++G_MODULE_EXPORT gboolean presets_drop_cb(GtkDropTargetAsync *drop_target, GdkDrop *drop,
+                          double x, double y, signal_user_data_t *ud);
+ 
+-void preset_edited_cb(
++G_MODULE_EXPORT void preset_edited_cb(
+     GtkCellRendererText *cell,
+     gchar               *treepath_s,
+     gchar               *text,
+diff -bur HandBrake-1.9.2-orig/gtk/src/application.c HandBrake-1.9.2/gtk/src/application.c
+--- HandBrake-1.9.2-orig/gtk/src/application.c	2025-03-15 15:52:16 -0600
++++ HandBrake-1.9.2/gtk/src/application.c	2025-03-15 15:58:46 -0600
+@@ -48,6 +48,7 @@
+ #ifdef _WIN32
+ #include <windows.h>
+ #include <io.h>
++#include <gdk/win32/gdkwin32.h>
+ #define pipe(phandles)  _pipe (phandles, 4096, _O_BINARY)
+ #else
+ #include <sys/utsname.h>
+@@ -330,17 +331,15 @@
+ G_MODULE_EXPORT void drive_changed_cb(GVolumeMonitor *gvm, GDrive *gd, gpointer data);
+ 
+ #if defined(_WIN32)
+-G_MODULE_EXPORT GdkFilterReturn
+-win_message_cb(GdkXEvent *wmevent, GdkEvent *event, gpointer data)
++G_MODULE_EXPORT GdkWin32MessageFilterReturn
++win_message_cb(GdkWin32Display *display, MSG *msg, int *return_value, gpointer data)
+ {
+-    signal_user_data_t *ud = ghb_ud();
+-    MSG *msg = (MSG*)wmevent;
+-
+     if (msg->message == WM_DEVICECHANGE)
+     {
+-        wm_drive_changed(wmevent, ud);
++        signal_user_data_t *ud = ghb_ud();
++        wm_drive_changed(msg, ud);
+     }
+-    return GDK_FILTER_CONTINUE;
++    return GDK_WIN32_MESSAGE_FILTER_CONTINUE;
+ }
+ #endif
+ 
+@@ -353,12 +352,11 @@
+ 
+     g_signal_connect(gvm, "drive-changed", G_CALLBACK(drive_changed_cb), ud);
+ #else
+-    GdkWindow *window;
+-    GtkWidget *widget;
++    GdkDisplay *display;
++
++    display = gdk_display_get_default();
+ 
+-    widget = ghb_builder_widget("hb_window");
+-    window = gtk_widget_get_parent_window(widget);
+-    gdk_window_add_filter(window, win_message_cb, ud);
++    gdk_win32_display_add_filter(display, win_message_cb, NULL);
+ #endif
+ }
+ diff -bur HandBrake-1.9.2-orig/gtk/module.defs HandBrake-1.9.2/gtk/module.defs
+--- HandBrake-1.9.2-orig/gtk/module.defs	2025-03-15 16:14:13 -0600
++++ HandBrake-1.9.2/gtk/module.defs	2025-03-15 16:16:06 -0600
+@@ -89,7 +89,7 @@
+ endif
+ 
+ ifeq (mingw,$(HOST.system))
+-    GTK.CONFIGURE.extra += -Dprefer_static=true
++    GTK.CONFIGURE.extra += -Dprefer_static=false
+ endif
+ 
+ ifeq (1,$(HOST.cross))
