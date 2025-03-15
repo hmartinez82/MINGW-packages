@@ -2,7 +2,9 @@
 
 _realname=handbrake
 pkgbase=mingw-w64-${_realname}
-pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-gui")
+
 pkgver=1.9.2
 pkgrel=8
 pkgdesc="The open source video transcoder (mingw-w64)"
@@ -30,6 +32,7 @@ depends=(
 makedepends=(
   "${MINGW_PACKAGE_PREFIX}-autotools"
   "${MINGW_PACKAGE_PREFIX}-cc"
+  "${MINGW_PACKAGE_PREFIX}-gtk4"
   "${MINGW_PACKAGE_PREFIX}-pkgconf"
   "${MINGW_PACKAGE_PREFIX}-python"
 )
@@ -41,6 +44,7 @@ source=(
   "0003-Remove-ambient-viewing-support.patch"
   "0004-fix-svt-av1-3-build.patch"
   "0005-arch-detection.patch"
+  "0006-gtk4-win32.patch"
 )
 sha256sums=('f56696b9863a6c926c0eabdcb980cece9aa222c650278d455ac6873d3220ce49'
             'SKIP'
@@ -49,8 +53,11 @@ sha256sums=('f56696b9863a6c926c0eabdcb980cece9aa222c650278d455ac6873d3220ce49'
             '3a240bc164143706c025dd8809f969352e0dbd0226611ee9a97c05eb772a9d75'
             '5245ef3310df3326a28f0da40e78d8bfd6cd83f790600e3557acc99b1de6ac32'
             'f420fb4de585ccb461eb0fdae3572c5c3d8b80a8a3b1dde822aa81e9754a6189'
-            '3f3331d5d4ef822ae4cefa00c528691a46207a3df1365da9f1441c12bde524d8')
+            '3f3331d5d4ef822ae4cefa00c528691a46207a3df1365da9f1441c12bde524d8'
+            'ec876216b075fadd4a9965b64a4f67e40cc5ac9a485a5633c9ce9ab9c3964b1e')
 validpgpkeys=('1629C061B3DDE7EB4AE34B81021DB8B44E4A8645') # HandBrake Team <developers@handbrake.fr>
+
+options=('!strip' 'debug')
 
 _apply_patch_with_msg() {
   for _patch in "$@"
@@ -81,7 +88,9 @@ prepare() {
   # https://salsa.debian.org/multimedia-team/handbrake/-/blob/master/debian/patches/0003-Remove-ambient-viewing-support.patch?ref_type=heads
   _apply_patch_with_msg 0003-Remove-ambient-viewing-support.patch
 
-  _apply_patch_with_msg 0005-arch-detection.patch
+  _apply_patch_with_msg \
+    0005-arch-detection.patch \
+    0006-gtk4-win32.patch
 }
 
 build() {
@@ -92,15 +101,43 @@ build() {
   CFLAGS+=" $(pkgconf --cflags libavcodec)"
   LDFLAGS+=" $(pkgconf --libs-only-L libavcodec)"
 
-  ./configure
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+  ./configure \
+    --prefix=${MINGW_PREFIX} \
+    --enable-gtk
 
+  CFLAGS+=" -Wno-dll-attribute-on-redeclaration" \
   make -C build
-
-  # meson setup -Dhb-dir=$PWD/build build/gtk gtk
 }
 
-package() {
+package_handbrake() {
+  pkgdesc="The open source video transcoder (mingw-w64)"
+
   cd "HandBrake-${pkgver}/build"
   install -D HandBrakeCLI.exe "${pkgdir}${MINGW_PREFIX}/bin/HandBrakeCLI.exe"
   install -Dm644 "${srcdir}/${_realname}-${pkgver}/LICENSE" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
 }
+
+package_handbrake-gui() {
+  pkgdesc="The open source video transcoder (GUI) (mingw-w64)"
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+           "${MINGW_PACKAGE_PREFIX}-gtk4")
+
+  cd "HandBrake-${pkgver}/build"
+  make DESTDIR="${pkgdir}" install
+  
+  rm -r "${pkgdir}${MINGW_PREFIX}"
+  mv "${pkgdir}/msys64/${MINGW_PREFIX}" "${pkgdir}"
+  rm -r "${pkgdir}/msys64"
+}
+
+# template start; name=mingw-w64-splitpkg-wrappers; version=1.0;
+# vim: set ft=bash :
+
+# generate wrappers
+for _name in "${pkgname[@]}"; do
+  _short="package_${_name#${MINGW_PACKAGE_PREFIX}-}"
+  _func="$(declare -f "${_short}")"
+  eval "${_func/#${_short}/package_${_name}}"
+done
+# template end;
