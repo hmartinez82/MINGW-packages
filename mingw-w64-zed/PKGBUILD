@@ -45,13 +45,15 @@ source=("git+${msys2_repository_url}.git#tag=v${pkgver}"
         "git+https://github.com/aws/aws-lc.git"
         "zstd-sys.tar.gz::https://crates.io/api/v1/crates/zstd-sys/2.0.15+zstd.1.5.7/download"
         "aws-lc-clang-build.patch"
-        "zstd-sys-remove-statik.patch")
+        "zstd-sys-remove-statik.patch"
+        "003-blade-lavapipe.patch")
 sha256sums=('42a694fdfda302655de608feab456773d8005fbae5a379c7fdfaaa4bfb75e020'
             '9262e298d58ea2eb7921c62ec94f5b0e9528cb6341b437c143559fa1cca2a4cc'
             'SKIP'
             'eb81183ddd97d0c74cedf1d50d85c8d08c1b8b68ee863bdee9e706eedba1a237'
             '2e3d7ef6fdb3ef8a2ec11207e8120ea34553888116ea8a032cb425a8a6261c39'
-            '48f4900ceb02d3aaf9a1020f33d56629156e96759f456c0e7ca18bfcf910767b')
+            '48f4900ceb02d3aaf9a1020f33d56629156e96759f456c0e7ca18bfcf910767b'
+            '24db34815acfd1d844fd9e026ca0a1ce159e347e854ed90e89818203a15fbc8f')
 
 prepare() {
   (cd aws-lc-rs
@@ -61,6 +63,7 @@ prepare() {
 
   cd "${_realname}"
   rm rust-toolchain.toml
+  patch -Nbp1 -i "../003-blade-lavapipe.patch"
 
   # link system deps dynamically
   patch -d "../zstd-sys-2.0.15+zstd.1.5.7" -i "../zstd-sys-remove-statik.patch"
@@ -105,7 +108,7 @@ build() {
   export RUSTFLAGS="$RUSTFLAGS -C link-arg=-fuse-ld=lld -C symbol-mangling-version=v0
     -C target-feature=-crt-static --cfg tokio_unstable --cfg windows_slim_errors"
 
-  cargo build --release --frozen -p zed -p cli
+  cargo build --frozen -p zed -p cli
 
   cd docs
   mdbook build

@@ -1,0 +1,14 @@
+diff -bur zed-o/Cargo.toml zed/Cargo.toml
+--- zed-o/Cargo.toml	2025-04-25 02:13:54.748619700 -0600
++++ zed/Cargo.toml	2025-04-25 02:14:07.405054600 -0600
+@@ -415,7 +415,7 @@
+ aws-smithy-types = { version = "1.3.0", features = ["http-body-1-x"] }
+ base64 = "0.22"
+ bitflags = "2.6.0"
+-blade-graphics = { git = "https://github.com/kvark/blade", rev = "b16f5c7bd873c7126f48c82c39e7ae64602ae74f" }
+-blade-macros = { git = "https://github.com/kvark/blade", rev = "b16f5c7bd873c7126f48c82c39e7ae64602ae74f" }
+-blade-util = { git = "https://github.com/kvark/blade", rev = "b16f5c7bd873c7126f48c82c39e7ae64602ae74f" }
++blade-graphics = { git = "https://github.com/hmartinez82/blade.git", rev = "3dcec0a496e5dced88cd00300aaf310019f6c661" }
++blade-macros = { git = "https://github.com/hmartinez82/blade.git", rev = "3dcec0a496e5dced88cd00300aaf310019f6c661" }
++blade-util = { git = "https://github.com/hmartinez82/blade.git", rev = "3dcec0a496e5dced88cd00300aaf310019f6c661" }
+ naga = { version = "23.1.0", features = ["wgsl-in"] }
