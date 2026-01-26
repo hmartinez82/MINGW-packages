@@ -2,7 +2,7 @@
 _realname=elmerfem
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
-pkgver=9.0.r4035.g82bb0e9
+pkgver=r9584.276af46
 pkgrel=1
 _commit=82bb0e9cc379f074037184d91676edd78a76d61a
 pkgdesc="Finite element software for multiphysical problems (mingw-w64)"
@@ -48,8 +48,8 @@ makedepends=(git
              "${MINGW_PACKAGE_PREFIX}-cmake"
              "${MINGW_PACKAGE_PREFIX}-fc"             
              $([[ ${CARCH} == aarch64 ]] || echo "${MINGW_PACKAGE_PREFIX}-msmpi"))
-source=("${_realname}"::"git+https://github.com/ElmerCSC/elmerfem.git#commit=${_commit}")
-sha256sums=('971bad89b9b5070fdff8dcd29abf24967431080570f00d46678d82abac86477a')
+source=("${_realname}"::"git+https://github.com/mmuetzel/elmerfem.git#branch=ci-mingw")
+sha256sums=('SKIP')
 
 _apply_patch_with_msg() {
   for _patch in "$@"
@@ -61,7 +61,7 @@ _apply_patch_with_msg() {
 
 pkgver() {
   cd "${srcdir}/${_realname}"
-  git describe --long --abbrev=7 | sed 's/\([^-]*-g\)/r\1/;s/-/./g' | sed 's/release\.//g'
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
 }
 
 prepare() {
@@ -106,14 +106,16 @@ build() {
       -Wno-dev \
       -G"Ninja" \
       -DCMAKE_INSTALL_PREFIX="${MINGW_PREFIX}" \
+      -DMPIEXEC_EXECUTABLE="C:/Program Files/Microsoft MPI/Bin/mpiexec.exe" \
       "${_extra_config[@]}" \
+      -DCMAKE_EXE_LINKER_FLAGS="-Wl,--stack,8000000" \
       -DCPACK_BUNDLE_EXTRA_WINDOWS_DLLS=OFF \
       -DBUILD_SHARED_LIBS=ON \
       -DBLA_VENDOR="OpenBLAS" \
       -DHAVE_QP=OFF \
       -DWITH_ELMERGUI=ON \
       -DWITH_LUA=ON \
-      -DWITH_MATC=OFF \
+      -DWITH_MATC=ON \
       -DWITH_Mumps=OFF \
       -DWITH_OCC=ON \
       -DWITH_OpenMP=ON \
