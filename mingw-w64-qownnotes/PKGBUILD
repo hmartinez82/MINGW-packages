@@ -3,7 +3,7 @@
 _realname=qownnotes
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=26.3.13
+pkgver=26.4.21
 pkgrel=1
 pkgdesc="Plain-text file markdown note taking with Nextcloud/ownCloud integration"
 arch=('any')
@@ -34,7 +34,7 @@ makedepends=(
 )
 source=("https://github.com/pbek/QOwnNotes/releases/download/v${pkgver}/qownnotes-${pkgver}.tar.xz"
         "0001-allow-system-botan.patch")
-sha256sums=('ec1f3c974d7684e2a60142792ef484b3cbf04664efd72bb36a3dce5d3c0b44f6'
+sha256sums=('1dd4f65e5e60845d11545fc925c22eeb4e21c0e5f11bb395976825e260200e77'
             'e332f9ad90713434224f3b1c4b344a9539dfe83acd62cd033490f9d4acf58633')
 
 prepare() {
